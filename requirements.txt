@@ -6,3 +6,4 @@ minio==7.1.13
 pandas==1.5.3
 streamlit==1.23.0
 apache-airflow-providers-github==2.5.1
+airflow-provider-rabbitmq==0.6.1

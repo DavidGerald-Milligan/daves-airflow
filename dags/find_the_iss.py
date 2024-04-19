@@ -26,8 +26,8 @@ import logging
 task_logger = logging.getLogger("airflow.task")
 
 YOUR_GITHUB_REPO_NAME = Variable.get(
-    "my_github_repo", "github.com/DavidGerald-Milligan/daves-airflow"
-)  # Replace with your repository name
+    "my_github_repo", "apache/airflow"
+)  # This is the variable you created in the Airflow UI
 YOUR_COMMIT_MESSAGE = "Where is the ISS right now?"  # Replace with your commit message
 
 
@@ -59,7 +59,7 @@ def commit_message_checker(repo: Any, trigger_message: str) -> bool | None:
 
 
 @dag(
-    start_date=datetime(2023, 6, 1),
+    start_date=datetime(2024, 1, 1),
     schedule="@daily",
     catchup=False,
     doc_md=__doc__,
@@ -68,8 +68,14 @@ def commit_message_checker(repo: Any, trigger_message: str) -> bool | None:
 )
 def find_the_iss():
 
+    """
+        Apache Airflow sensors are a special kind of operator that are designed to wait for something to happen.
+        When sensors run, they check to see if a certain condition is met before they are marked successful and
+        let their downstream tasks execute. When used properly, they can be a great tool for making your DAGs
+        more event driven.
+    """
     github_sensor = GithubSensor(
-        task_id="example_sensor",
+        task_id="github_sensor",
         github_conn_id="my_github_conn",
         method_name="get_repo",
         method_params={"full_name_or_id": YOUR_GITHUB_REPO_NAME},
@@ -104,7 +110,7 @@ def find_the_iss():
         lon = location_dict["iss_position"]["longitude"]
 
         r = requests.get(
-            f"https://api.bigdatacloud.net/data/reverse-geocode-client?{lat}?{lon}"
+            f"https://api.bigdatacloud.net/data/reverse-geocode-client?latitude={lat}&longitude={lon}"
         ).json()
 
         country = r["countryName"]
