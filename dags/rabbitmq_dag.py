@@ -22,8 +22,16 @@ def rabbitmq_dag():
         queue_name="test"
     )
     
+    @task
+    def rabbitmq_sensor_consumer(msg: str):
+        task_logger.info(
+            f"Got message {msg}."
+        )
+        return msg
+    
+    log_msg = rabbitmq_sensor_consumer(rabbit_sensor.output)
     done_notification = EmptyOperator(task_id="done")
     
-    chain(rabbit_sensor, done_notification)
+    chain(rabbit_sensor, log_msg, done_notification)
     
 rabbitmq_dag()
